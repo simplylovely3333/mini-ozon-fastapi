@@ -4,14 +4,22 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
 from pydantic import BaseModel
 import os
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# 1. Настройка базы данных Postgres
-DATA_BASE_URL = "postgresql://postgres:12345678@localhost:5432/market"
+# Загружаем переменные из файла .env
+load_dotenv()
+
+# Забираем URL из переменной окружения
+# Если переменная не найдется, по умолчанию будет пусто
+DATA_BASE_URL = os.getenv("DATABASE_URL")
+
+if not DATA_BASE_URL:
+    raise ValueError("DATABASE_URL не найдена в файле .env")
 
 engine = create_engine(DATA_BASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
